@@ -53,7 +53,7 @@ shinyServer(function(input, output) {
       filter_name <- paste0('filter_', as.character(i))
       filter_value <- input[[paste0(filter_name, '_value')]]
       if(!is.null(filter_value)) {
-        after_filter <- data.frame()
+        after_filter <- filtered_data
         # The filter is filled out
         column_name <- input[[paste0(filter_name, '_column')]]
         comparison <- input[[paste0(filter_name, '_comparison')]]
@@ -61,22 +61,22 @@ shinyServer(function(input, output) {
           # This is a numeric filter
           if(!grepl(">", comparison)) {
             # This comparison does not include greater-than
-            after_filter <- filtered_data %>% filter_(paste(column_name, "<=", filter_value))
+            after_filter <- after_filter %>% filter_(paste(column_name, "<=", filter_value))
           }
           
           if(!grepl("=", comparison)) {
             # This comparison does not include equals
-            after_filter <- filtered_data %>% filter_(paste(column_name, "!=", filter_value))
+            after_filter <- after_filter %>% filter_(paste(column_name, "!=", filter_value))
           }
           
           if(!grepl("<", comparison)) {
             # This comparison does not include less-than
-            after_filter <- filtered_data %>% filter_(paste(column_name, ">=", filter_value))
+            after_filter <- after_filter %>% filter_(paste(column_name, ">=", filter_value))
           }
         } else if(class(iris[[column_name]]) == "character" | class(iris[[column_name]]) == "factor") {
           # This is a string filter (only works with "=")
           if(comparison == "=" & nchar(filter_value) > 0) {
-            after_filter <- filtered_data %>% filter_(paste0(column_name, " == '", filter_value, "'"))
+            after_filter <- after_filter %>% filter_(paste0(column_name, " == '", filter_value, "'"))
           }
         }
         # Only actually perform the filter if it leaves some values
