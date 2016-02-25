@@ -2,21 +2,30 @@ library(plotly)
 library(dplyr)
 
 # This function dynamically creates a filter input
-filterInput <- function(filter_num) {
+filterInput <- function(filter_num, input) {
+  filter_name <- paste0('filter_', as.character(filter_num))
+  # Get the current values if they exist, to retain them
+  column_input_value <- input[[paste0(filter_name, '_column')]]
+  comparison_input_value <- input[[paste0(filter_name, '_comparison')]]
+  value_input_value <- input[[paste0(filter_name, '_value')]]
+  
   filter <- list(
     selectInput(
-      paste0('filter_', as.character(filter_num), '_column'),
+      paste0(filter_name, '_column'),
       label = "Column to filter",
-      choices = colnames(iris)
+      choices = colnames(iris),
+      selected = column_input_value
     ),
     selectInput(
-      paste0('filter_', as.character(filter_num), '_comparison'),
+      paste0(filter_name, '_comparison'),
       label = "",
-      choices = list(">", "<", ">=", "<=", "> or <", "=")
+      choices = list(">", "<", ">=", "<=", "="),
+      selected = comparison_input_value
     ),
     textInput(
-      paste0('filter_', as.character(filter_num), '_value'),
-      label = ""
+      paste0(filter_name, '_value'),
+      label = "",
+      value = value_input_value
     )
   )
   return(filter)
@@ -32,7 +41,7 @@ shinyServer(function(input, output) {
     list_of_filters <- list()
     
     for(i in 1:input$num_filters) {
-      list_of_filters[[i]] <- filterInput(i)
+      list_of_filters[[i]] <- filterInput(i, input)
     }
     
     return(list_of_filters)
@@ -45,6 +54,7 @@ shinyServer(function(input, output) {
       filter_name <- paste0('filter_', as.character(i))
       filter_value <- input[[paste0(filter_name, '_value')]]
       if(!is.null(filter_value)) {
+        after_filter <- data.frame()
         # The filter is filled out
         column_name <- input[[paste0(filter_name, '_column')]]
         comparison <- input[[paste0(filter_name, '_comparison')]]
@@ -52,27 +62,27 @@ shinyServer(function(input, output) {
           # This is a numeric filter
           if(!grepl(">", comparison)) {
             # This comparison does not include greater-than
-            filtered_data <- filtered_data %>% filter_(paste(column_name, "<=", filter_value))
+            after_filter <- filtered_data %>% filter_(paste(column_name, "<=", filter_value))
           }
           
           if(!grepl("=", comparison)) {
             # This comparison does not include equals
-            filtered_data <- filtered_data %>% filter_(paste(column_name, "!=", filter_value))
+            after_filter <- filtered_data %>% filter_(paste(column_name, "!=", filter_value))
           }
           
           if(!grepl("<", comparison)) {
             # This comparison does not include less-than
-            filtered_data <- filtered_data %>% filter_(paste(column_name, ">=", filter_value))
+            after_filter <- filtered_data %>% filter_(paste(column_name, ">=", filter_value))
           }
         } else if(class(iris[[column_name]]) == "character" | class(iris[[column_name]]) == "factor") {
           # This is a string filter (only works with "=")
           if(comparison == "=" & nchar(filter_value) > 0) {
-            # Only actually perform the filter if it leaves some values
             after_filter <- filtered_data %>% filter_(paste0(column_name, " == '", filter_value, "'"))
-            if(nrow(after_filter) > 0) {
-              filtered_data <- after_filter
-            }
           }
+        }
+        # Only actually perform the filter if it leaves some values
+        if(nrow(after_filter) > 0) {
+          filtered_data <- after_filter
         }
       }
     }
