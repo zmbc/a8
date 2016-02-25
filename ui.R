@@ -1,3 +1,5 @@
+library(plotly)
+
 shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
