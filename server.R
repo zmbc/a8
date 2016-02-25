@@ -4,28 +4,21 @@ library(dplyr)
 # This function dynamically creates a filter input
 filterInput <- function(filter_num, input) {
   filter_name <- paste0('filter_', as.character(filter_num))
-  # Get the current values if they exist, to retain them
-  column_input_value <- input[[paste0(filter_name, '_column')]]
-  comparison_input_value <- input[[paste0(filter_name, '_comparison')]]
-  value_input_value <- input[[paste0(filter_name, '_value')]]
   
   filter <- list(
     selectInput(
       paste0(filter_name, '_column'),
       label = "Column to filter",
-      choices = colnames(iris),
-      selected = column_input_value
+      choices = colnames(iris)
     ),
     selectInput(
       paste0(filter_name, '_comparison'),
       label = "",
-      choices = list(">", "<", ">=", "<=", "="),
-      selected = comparison_input_value
+      choices = list(">", "<", ">=", "<=", "=")
     ),
     textInput(
       paste0(filter_name, '_value'),
-      label = "",
-      value = value_input_value
+      label = ""
     )
   )
   return(filter)
@@ -41,7 +34,7 @@ shinyServer(function(input, output) {
     list_of_filters <- list()
     
     for(i in 1:input$num_filters) {
-      list_of_filters[[i]] <- filterInput(i, input)
+      list_of_filters[[i]] <- filterInput(i)
     }
     
     return(list_of_filters)
