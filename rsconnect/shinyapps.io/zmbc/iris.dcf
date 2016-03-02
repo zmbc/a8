@@ -1,7 +1,8 @@
 name: iris
 account: zmbc
 server: shinyapps.io
-appId: 85264
-bundleId: 380634
+bundleId: 385105
 url: https://zmbc.shinyapps.io/iris/
-when: 1456426584.476
+when: 1456893504.05246
+asMultiple: FALSE
+asStatic: FALSE
