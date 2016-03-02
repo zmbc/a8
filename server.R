@@ -18,7 +18,7 @@ filterInput <- function(filter_num, input) {
     selectInput(
       paste0(filter_name, '_comparison'),
       label = "",
-      choices = list(">", "<", ">=", "<=", "="),
+      choices = list(">", "<", ">=", "<=", "=", "> or <"),
       selected = comparison_input_value
     ),
     textInput(
